@@ -4,13 +4,12 @@ import loadSprites from "./load.js";
 const SCALE = 3;
 
 kaboom({
-	background: [0,0,0]
+	background: [0, 0, 0]
 });
 
 loadSprites();
 
 addLevel([
-	// "wwwwwwwwwwwwwwwwwwww",
 	"wwwwwwwwwwwwwwwwwwww",
 	"tttttttttttttttttttt",
 	"                    ",
@@ -32,7 +31,7 @@ addLevel([
 		origin('center')
 	],
 	"t": () => [
-		sprite("wallFaceTiles", { frame: ~~rand(0,6 ) }),
+		sprite("wallFaceTiles", { frame: ~~rand(0, 6) }),
 		scale(SCALE),
 		origin('center')
 	]
@@ -82,12 +81,11 @@ let map = addLevel([
 		solid(),
 		origin('left')
 	]
-	
-})
+});
 
 
 const ogre = add([
-	sprite('fantasy', {anim: 'ogreIdle'}),
+	sprite('fantasy', { anim: 'ogreIdle' }),
 	pos(width() / 2, height() / 2),
 	origin('center'),
 	area(),
@@ -95,40 +93,25 @@ const ogre = add([
 	scale(SCALE),
 	rotate(0)
 ]);
-console.log(ogre);
 ogre.direction = 'right';
 
 keyPress(['left', 'a', 'right', 'd'], () => {
 	ogre.play('ogreWalk');
 });
 keyDown(['left', 'a'], () => {
-	ogre.move(-150, 0)
-	if (ogre.direction === 'right') {
-		ogre.flipX(true);
-	}
-	ogre.direction = 'left';
+	ogre.move(-150, 0);
+	ogre.flipX(true);
 });
 keyDown(['right', 'd'], () => {
-	ogre.move(150, 0)
-	if (ogre.direction === 'left') {
-		ogre.flipX(true);
-	}
-	ogre.direction = 'right';
+	ogre.move(150, 0);
+	ogre.flipX(false);
 });
 keyDown(['up', 'w'], () => {
-	ogre.move(0, -150)
-})
+	ogre.move(0, -150);
+});
 keyDown(['down', 's'], () => {
-	ogre.move(0, 150)
-})
+	ogre.move(0, 150);
+});
 keyRelease(['left', 'a', 'right', 'd'], () => {
 	ogre.play('ogreIdle');
-})
-
-
-add([
-	sprite('fantasy', {anim: 'ogreWalk'}),
-	pos(width() / 2, (height() / 2) + 50),
-	origin('center'),
-	scale(SCALE)
-])
+});

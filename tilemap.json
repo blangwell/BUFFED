@@ -1,0 +1,144 @@
+{
+    "gold": {
+        "x": 0,
+        "y": 0,
+        "width": 16,
+        "height": 16
+    },
+    "barrel": {
+        "x": 16,
+        "y": 0,
+        "width": 16,
+        "height": 16
+    },
+    "bookshelf": {
+        "x": 32,
+        "y": 0,
+        "width": 16,
+        "height": 16
+    },
+    "greenFlag": {
+        "x": 48,
+        "y": 0,
+        "width": 16,
+        "height": 16
+    },
+    "redFlag": {
+        "x": 64,
+        "y": 0,
+        "width": 16,
+        "height": 16
+    },
+    "tableLong": {
+        "x": 0,
+        "y": 16,
+        "width": 32,
+        "height": 16
+    },
+    "tableShort": {
+        "x": 80,
+        "y": 16,
+        "width": 16,
+        "height": 16
+    },
+    "skeleton": {
+        "x": 64,
+        "y": 16,
+        "width": 16,
+        "height": 16
+    },
+    "staircase": {
+        "x": 16,
+        "y": 48,
+        "width": 16,
+        "height": 16
+    }, 
+    "floorTiles": {
+        "x": 32,
+        "y": 32,
+        "width": 64,
+        "height": 32,
+        "sliceX": 4,
+        "sliceY": 2
+    },
+    "wallFaceTiles": {
+        "x": 96,
+        "y": 64,
+        "width": 48,
+        "height": 32,
+        "sliceX": 3,
+        "sliceY": 2
+    },
+    "wallFace1": {
+        "x": 96,
+        "y": 64,
+        "width": 16,
+        "height": 16
+    },
+    "wallFace2": {
+        "x": 112,
+        "y": 64,
+        "width": 16,
+        "height": 16
+    },
+    "wallFace3": {
+        "x": 128,
+        "y": 64,
+        "width": 16,
+        "height": 16
+    },
+    "wallFaceCrack": {
+        "x": 128,
+        "y": 80,
+        "width": 16,
+        "height": 16
+    },
+    "wallFaceGrate": {
+        "x": 112,
+        "y": 80,
+        "width": 16,
+        "height": 16
+    },
+    "wallFaceGrateSide": {
+        "x": 96,
+        "y": 80,
+        "width": 16,
+        "height": 16
+    },
+    "wallGratePanel": {
+        "x": 96,
+        "y": 80,
+        "width": 48,
+        "height": 16
+    },
+    "wallTR": {
+        "x": 128,
+        "y": 96,
+        "width": 16,
+        "height": 16
+    },
+    "wallTL": {
+        "x": 112,
+        "y": 96,
+        "width": 16,
+        "height": 16
+    },
+    "wallL": {
+        "x": 48,
+        "y": 80,
+        "width": 16,
+        "height": 16
+    },
+    "wallR": {
+        "x": 64,
+        "y": 80,
+        "width": 16,
+        "height": 16
+    },
+    "wallB": {
+        "x": 32,
+        "y": 112,
+        "width": 16,
+        "height": 16
+    }
+}

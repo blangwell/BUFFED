@@ -10,6 +10,7 @@ kaboom({
 loadSpriteAtlas('./sprites/tmDungeon.png', './tilemap.json');
 loadSpriteAtlas('./sprites/ssFantasy.png', './fantasySpriteAtlas.json');
 loadSpriteAtlas('./sprites/uiRedbox.png', './redBox.json');
+loadSprite('fish', './sprites/fish.png');
 loadSound('grow', './sounds/grow1.wav');
 loadSound('explode', './sounds/explode1.wav');
 loadSound('bgm', './sounds/abstractionDeepBlue.wav');
@@ -90,7 +91,7 @@ scene('game', () => {
 		pos(200, 200),
 		origin('center'),
 		scale(SCALE),
-		area({ width: 8, height: 7 }),
+		area({ width: 12, height: 8, offset: {x: 0, y: 3} }),
 		solid(),
 		health(3),
 		{
@@ -104,7 +105,7 @@ scene('game', () => {
 		pos(400, 400),
 		origin('center'),
 		scale(SCALE),
-		area({ width: 8, height: 7 }),
+		area({ width: 12, height: 8, offset: {x: 0, y: 3} }),
 		solid(),
 		health(3),
 		{
@@ -112,14 +113,23 @@ scene('game', () => {
 		},
 		"slime"
 	]);
+
+	// SLIME COLLISION / DEATH
 	on("death", "slime", slime => {
+		burp({ volume: .3 });
 		play('explode');
 		slime.destroy();
+		add([
+			sprite("puff", { anim: "puff"}),
+			pos(slime.pos.x, slime.pos.y),
+			origin('center'),
+			scale(SCALE + 3)
+		]);
 	});
+
 	collides("projectile", "wall", (projectile) => {
 		projectile.destroy();
-	})
-
+	});
 
 	// sprite animation 
 	const movementKeys = ['left', 'a', 'right', 'd', 'down', 's', 'up', 'w']
@@ -174,20 +184,24 @@ scene('game', () => {
 	// PROJECTILE LOGIC
 	mouseClick(() => {
 		let dest = mousePos();
-		add([
-			sprite('gold'),
+		let projectile = add([
+			sprite('fish'),
 			pos(ogre.pos.x, ogre.pos.y),
 			area(),
 			move(dest.angle(ogre.pos), 250),
-			scale(SCALE - .5),
+			scale(SCALE - 1),
+			rotate(0),
 			cleanup(),
 			origin('center'),
 			"projectile"
 		]);
 		
+		projectile.action(() => {
+			projectile.angle += 300 * dt();
+		})
 	});
 
-	// GROW LOGIC
+	// GROW ON SHOOT LOGIC
 	collides('slime', 'projectile', (slime, projectile) => {
 		projectile.destroy();
 		if (slime.hp() > 1) {

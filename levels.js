@@ -26,7 +26,7 @@ export const LEVELS = {
 			"l                  r",
 			"l                  r",
 			"l                  r",
-			"l                  r"
+			"wwwwwwwwwwwwwwwwwwww",
 		]
 	}
 }

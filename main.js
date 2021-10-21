@@ -10,8 +10,16 @@ kaboom({
 loadSpriteAtlas('./sprites/tmDungeon.png', './tilemap.json');
 loadSpriteAtlas('./sprites/ssFantasy.png', './fantasySpriteAtlas.json');
 loadSpriteAtlas('./sprites/uiRedbox.png', './redBox.json');
+loadSound('grow', './sounds/grow1.wav');
+loadSound('explode', './sounds/explode1.wav');
+loadSound('bgm', './sounds/abstractionDeepBlue.wav');
 
 scene('game', () => {
+	cursor('crosshair');
+
+	play('bgm', {
+		volume: .1
+	});	
 	let floor = addLevel(LEVELS.one.floor, {
 		width: 16 * SCALE,
 		height: 16 * SCALE,
@@ -23,7 +31,8 @@ scene('game', () => {
 		"t": () => [
 			sprite("wallFaceTiles", { frame: ~~rand(0, 6) }),
 			scale(SCALE),
-			origin('center')
+			origin('center'),
+			"wall"
 		]
 	});
 
@@ -42,21 +51,24 @@ scene('game', () => {
 			scale(SCALE),
 			area({ offset: 20 }),
 			solid(),
-			origin('center')
+			origin('center'),
+			"wall"
 		],
 		"r": () => [
 			sprite("wallR"),
 			scale(SCALE),
 			area({ offset: 32 }),
 			solid(),
-			origin('top')
+			origin('top'),
+			"wall"
 		],
 		"l": () => [
 			sprite("wallL"),
 			scale(SCALE),
 			area({ offset: -32 }),
 			solid(),
-			origin('topleft')
+			origin('topleft'),
+			"wall"
 		]
 	});
 
@@ -80,6 +92,10 @@ scene('game', () => {
 		scale(SCALE),
 		area({ width: 8, height: 7 }),
 		solid(),
+		health(3),
+		{
+			timesFed: 0
+		},
 		"slime"
 	]);
 
@@ -89,9 +105,20 @@ scene('game', () => {
 		origin('center'),
 		scale(SCALE),
 		area({ width: 8, height: 7 }),
-		// solid()
+		solid(),
+		health(3),
+		{
+			timesFed: 0
+		},
 		"slime"
 	]);
+	on("death", "slime", slime => {
+		play('explode');
+		slime.destroy();
+	});
+	collides("projectile", "wall", (projectile) => {
+		projectile.destroy();
+	})
 
 
 	// sprite animation 
@@ -145,20 +172,9 @@ scene('game', () => {
 	});
 
 	// PROJECTILE LOGIC
-	keyPress(['space'], () => {
-		add([
-			sprite('gold'),
-			pos(ogre.pos.x, ogre.pos.y),
-			move(mousePos(), 250),
-			area(),
-			cleanup(),
-			"projectile"
-		])
-	});
-	let dest = vec2(0)
 	mouseClick(() => {
-		dest = mousePos();
-		let projectile = add([
+		let dest = mousePos();
+		add([
 			sprite('gold'),
 			pos(ogre.pos.x, ogre.pos.y),
 			area(),
@@ -170,10 +186,17 @@ scene('game', () => {
 		]);
 		
 	});
+
+	// GROW LOGIC
 	collides('slime', 'projectile', (slime, projectile) => {
-		slime.destroy();
 		projectile.destroy();
-	})
+		if (slime.hp() > 1) {
+			play('grow');
+		}
+		slime.hurt(1);
+		slime.timesFed++;
+		slime.scaleTo(SCALE + slime.timesFed);
+	});
 
 }); // END SCENE
 

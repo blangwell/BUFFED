@@ -69,11 +69,9 @@ scene('game', () => {
 		area({ width: 14, height: 14 }),
 		solid(),
 		z(2),
-		{
-			speed: 100
-		}
+		"ogre"
 	]);
-	ogre.direction = 'right';
+	ogre.direction = RIGHT;
 
 	const slime = add([
 		sprite('slime', { anim: 'idle' }),
@@ -81,7 +79,8 @@ scene('game', () => {
 		origin('center'),
 		scale(SCALE),
 		area({ width: 8, height: 7 }),
-		solid()
+		solid(),
+		"slime"
 	]);
 
 	const slime2 = add([
@@ -91,6 +90,7 @@ scene('game', () => {
 		scale(SCALE),
 		area({ width: 8, height: 7 }),
 		// solid()
+		"slime"
 	]);
 
 
@@ -111,11 +111,23 @@ scene('game', () => {
 	keyPress(['left', 'a'], () => {
 		if (!keyIsDown('right') && !keyIsDown('d')) {
 			ogre.flipX(true);
+			ogre.direction = LEFT;
 		}
 	});
 	keyPress(['right', 'd'], () => {
 		if (!keyIsDown('left') && !keyIsDown('a')) {
 			ogre.flipX(false);
+			ogre.direction = RIGHT;
+		}
+	});
+	keyPress(['up', 'w'], () => {
+		if (!keyIsDown('down') && !keyIsDown('s')) {
+			ogre.direction = UP;
+		}
+	});
+	keyPress(['down', 's'], () => {
+		if (!keyIsDown('up') && !keyIsDown('w')) {
+			ogre.direction = DOWN;
 		}
 	});
 	// pc movement logic
@@ -131,7 +143,39 @@ scene('game', () => {
 	keyDown(['down', 's'], () => {
 		ogre.move(0, 150);
 	});
-});
+
+	// PROJECTILE LOGIC
+	keyPress(['space'], () => {
+		add([
+			sprite('gold'),
+			pos(ogre.pos.x, ogre.pos.y),
+			move(mousePos(), 250),
+			area(),
+			cleanup(),
+			"projectile"
+		])
+	});
+	let dest = vec2(0)
+	mouseClick(() => {
+		dest = mousePos();
+		let projectile = add([
+			sprite('gold'),
+			pos(ogre.pos.x, ogre.pos.y),
+			area(),
+			move(dest.angle(ogre.pos), 250),
+			scale(SCALE - .5),
+			cleanup(),
+			origin('center'),
+			"projectile"
+		]);
+		
+	});
+	collides('slime', 'projectile', (slime, projectile) => {
+		slime.destroy();
+		projectile.destroy();
+	})
+
+}); // END SCENE
 
 scene('mainMenu', () => {
 	add([

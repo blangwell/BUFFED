@@ -4,9 +4,10 @@ import { LEVELS } from "./levels.js";
 const SCALE = 3;
 
 kaboom({
-	background: [0, 0, 0]
+	background: [0, 0, 0],
 });
 
+loadSprite('crosshair', './sprites/crosshair.png');
 loadSpriteAtlas('./sprites/tmDungeon.png', './tilemap.json');
 loadSpriteAtlas('./sprites/ssFantasy.png', './fantasySpriteAtlas.json');
 loadSpriteAtlas('./sprites/uiRedbox.png', './redBox.json');
@@ -17,8 +18,9 @@ loadSound('bgm', './sounds/abstractionDeepBlue.wav');
 loadSound('lose', './sounds/lose.wav');
 loadSound('hit', './sounds/hit1.wav');
 
+
 scene('game', () => {
-	cursor('crosshair');
+	cursor('none');
 
 	const bgm = play('bgm', {
 		volume: .1
@@ -118,7 +120,18 @@ scene('game', () => {
 		go('mainMenu');
 	});
 
-	const slime = add([
+
+	let crosshair = add([
+		sprite('crosshair'),
+		pos(mousePos()),
+		scale(SCALE - 1),
+		origin('center'),
+		z(3),
+		"crosshair"
+	]);
+
+	// ADD SLIMES
+	add([
 		sprite('slime', { anim: 'idle' }),
 		pos(200, 200),
 		origin('center'),
@@ -131,8 +144,7 @@ scene('game', () => {
 		},
 		"slime"
 	]);
-
-	const slime2 = add([
+	add([
 		sprite('slime', { anim: 'idle' }),
 		pos(400, 400),
 		origin('center'),
@@ -189,6 +201,16 @@ scene('game', () => {
 		player.move(0, 150);
 	});
 
+	// FLIP PLAYER BASED ON MOUSE POSITION
+	mouseMove(() => {
+		crosshair.pos = mousePos();
+		if (mousePos().x < player.pos.x) {
+			player.flipX(true);
+		} else {
+			player.flipX(false);
+		}
+	});
+
 	// PROJECTILE LOGIC
 	mouseClick(() => {
 		let dest = mousePos();
@@ -196,7 +218,7 @@ scene('game', () => {
 			sprite('fish'),
 			pos(player.pos.x, player.pos.y),
 			area(),
-			move(dest.angle(player.pos), 250),
+			move(dest.angle(player.pos), 300),
 			scale(SCALE - 1),
 			rotate(0),
 			cleanup(),
@@ -208,14 +230,9 @@ scene('game', () => {
 		});
 	});
 
-	// FLIP PLAYER BASED ON MOUSE POSITION
-	mouseMove(() => {
-		if (mousePos().x < player.pos.x) {
-			player.flipX(true);
-		} else {
-			player.flipX(false);
-		}
-	});
+	keyPress('f', () => {
+		fullscreen(!isFullscreen());
+	})
 
 	// COLLISIONS
 	// GROW ON SHOOT LOGIC
@@ -229,12 +246,6 @@ scene('game', () => {
 		slime.scaleTo(SCALE + slime.timesFed);
 	});
 
-	// collides('player', 'slime', (player, slime) => {
-	// 	player.hurt(1);
-	// 	console.log(player.hp());
-	// });
-
-
 	// PROJECTILE WALL COLLISION 
 	collides("projectile", "wall", (projectile) => {
 		projectile.destroy();
@@ -242,7 +253,6 @@ scene('game', () => {
 
 }); 
 // =========== END SCENE ===========
-
 
 scene('mainMenu', () => {
 	add([

@@ -19,7 +19,7 @@ export const LEVELS = {
 			"l $      $        $r",
 			"l                  r",
 			"l                  r",
-			"l                  r",
+			"l    p             r",
 			"l                  r",
 			"l                  r",
 			"l                  r",

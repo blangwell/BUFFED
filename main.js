@@ -17,26 +17,35 @@ loadSound('explode', './sounds/explode1.wav');
 loadSound('bgm', './sounds/abstractionDeepBlue.wav');
 loadSound('lose', './sounds/lose.wav');
 loadSound('hit', './sounds/hit1.wav');
+loadSound('heal', './sounds/threeTone2.ogg');
 
 
 scene('game', () => {
+	layers([
+		"bg",
+		"game",
+		"ui",
+	], 'game')
+
 	cursor('none');
 
-	const bgm = play('bgm', {
-		volume: .1
-	});	
+	// const bgm = play('bgm', {
+	// 	volume: .1
+	// });	
 	let floor = addLevel(LEVELS.one.floor, {
 		width: 16 * SCALE,
 		height: 16 * SCALE,
 		" ": () => [
 			sprite("floorTiles", { frame: ~~rand(0, 7) }),
 			scale(SCALE),
-			origin('center')
+			origin('center'),
+			layer('bg')
 		],
 		"t": () => [
 			sprite("wallFaceTiles", { frame: ~~rand(0, 6) }),
 			scale(SCALE),
 			origin('center'),
+			layer('bg'),
 			"wall"
 		]
 	});
@@ -49,13 +58,23 @@ scene('game', () => {
 			scale(SCALE),
 			area({ offset: vec2(0, -25) }),
 			solid(),
+			layer('game'),
 			origin('center')
+		],
+		"p": () => [
+			sprite("potionRed"),
+			scale(SCALE),
+			area({ width: 8, height: 8 }),
+			layer('game'),
+			origin('center'),
+			"potion"
 		],
 		"w": () => [
 			sprite("wallB"),
 			scale(SCALE),
 			area({ offset: 20 }),
 			solid(),
+			layer('game'),
 			origin('center'),
 			"wall"
 		],
@@ -64,6 +83,7 @@ scene('game', () => {
 			scale(SCALE),
 			area({ offset: 32 }),
 			solid(),
+			layer('game'),
 			origin('top'),
 			"wall"
 		],
@@ -72,6 +92,7 @@ scene('game', () => {
 			scale(SCALE),
 			area({ offset: -32 }),
 			solid(),
+			layer('game'),
 			origin('topleft'),
 			"wall"
 		]
@@ -82,6 +103,7 @@ scene('game', () => {
 		sprite('ogre', { anim: 'idle' }),
 		pos(width() / 2, height() / 2),
 		origin('center'),
+		layer('game'),
 		scale(SCALE),
 		area({ width: 14, height: 14 }),
 		health(3),
@@ -90,12 +112,14 @@ scene('game', () => {
 		"player"
 	]);
 	player.invulnerable = false;
+	player.cooldownTime = .5;
+	player.inCooldown = false;
+
 	player.collides('slime', () => {
-		console.log(player.hp())
 		if (!player.invulnerable) {
 			play('hit');
 			player.hurt(1);
-			player.opacity = .4;
+			updateHealthUI(player.hp());
 			// flicker when damaged
 			let flicker = setInterval(() => {
 				player.opacity = player.opacity == 1 ? .4 : 1; 
@@ -109,18 +133,41 @@ scene('game', () => {
 		});
 	});
 
+	player.collides('potion', potion => {
+		player.heal(1);
+		play('heal', { volume: .5 });
+		updateHealthUI(player.hp());
+		potion.destroy();
+	})
+
+	function updateHealthUI(playerHP) {
+		every('heart', destroy);
+		for (let i = 0; i < playerHP; i++) {
+			add([
+				sprite('gold'),
+				scale(SCALE),
+				pos(50 + (50 * i), 50),
+				layer('ui'),
+				'heart'
+			])
+		}
+	}
+	updateHealthUI(player.hp());
+
 	on("hurt", "player", player => {
 		player.color = rgb(255, 0, 0);
 		wait(.5, () => player.color = null);
 	});
 
-	on("death", "player", player => {
-		bgm.pause();
+	on("death", "player", () => {
+		// bgm.pause();
 		play('lose');
-		go('mainMenu');
+		go('gameOver');
 	});
 
+	
 
+	// CUSTOM SPRITE CURSOR
 	let crosshair = add([
 		sprite('crosshair'),
 		pos(mousePos()),
@@ -135,6 +182,7 @@ scene('game', () => {
 		sprite('slime', { anim: 'idle' }),
 		pos(200, 200),
 		origin('center'),
+		layer('game'),
 		scale(SCALE),
 		area({ width: 12, height: 8, offset: {x: 0, y: 3} }),
 		solid(),
@@ -148,6 +196,7 @@ scene('game', () => {
 		sprite('slime', { anim: 'idle' }),
 		pos(400, 400),
 		origin('center'),
+		layer('game'),
 		scale(SCALE),
 		area({ width: 12, height: 8, offset: {x: 0, y: 3} }),
 		solid(),
@@ -213,21 +262,28 @@ scene('game', () => {
 
 	// PROJECTILE LOGIC
 	mouseClick(() => {
-		let dest = mousePos();
-		let projectile = add([
-			sprite('fish'),
-			pos(player.pos.x, player.pos.y),
-			area(),
-			move(dest.angle(player.pos), 300),
-			scale(SCALE - 1),
-			rotate(0),
-			cleanup(),
-			origin('center'),
-			"projectile"
-		]);
-		projectile.action(() => {
-			projectile.angle += 300 * dt();
-		});
+		if (!player.inCooldown) {
+			player.inCooldown = true;
+			wait(player.cooldownTime, () => {
+				player.inCooldown = false;
+			})
+			let dest = mousePos();
+			let projectile = add([
+				sprite('fish'),
+				pos(player.pos.x, player.pos.y),
+				area(),
+				move(dest.angle(player.pos), 300),
+				scale(SCALE - 1),
+				rotate(0),
+				cleanup(),
+				origin('center'),
+				"projectile"
+			]);
+			projectile.action(() => {
+				projectile.angle += 300 * dt();
+			});
+
+		}
 	});
 
 	keyPress('f', () => {
@@ -275,5 +331,27 @@ scene('mainMenu', () => {
 		go('game');
 	});
 });
+
+scene('gameOver', () => {
+	add([
+		text('GAME OVER!', {
+			size: 100,
+			font: "sinko"
+		}),
+		pos(width() / 2, height() / 2),
+		origin('center')
+	]);
+	add([
+		text('Press space to play again', {
+			size: 50,
+			font: "sink"
+		}),
+		pos(width() / 2, height() / 2 + 100),
+		origin('top')
+	]);
+	keyPress(['space'], () => {
+		go('game');
+	});
+})
 
 go('mainMenu');

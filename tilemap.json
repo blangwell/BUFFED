@@ -29,6 +29,12 @@
         "width": 16,
         "height": 16
     },
+    "potionRed": {
+        "x": 112,
+        "y": 0,
+        "width": 16, 
+        "height": 16
+    },
     "tableLong": {
         "x": 0,
         "y": 16,

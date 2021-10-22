@@ -1,103 +1,16 @@
-import kaboom from "https://unpkg.com/kaboom@next/dist/kaboom.mjs";
-import { LEVELS } from "./levels.js";
-
+import {addFloor, addMap} from './levels.js';
 const SCALE = 3;
-
-kaboom({
-	background: [0, 0, 0],
-});
-
-loadSprite('crosshair', './sprites/crosshair.png');
-loadSpriteAtlas('./sprites/tmDungeon.png', './tilemap.json');
-loadSpriteAtlas('./sprites/ssFantasy.png', './fantasySpriteAtlas.json');
-loadSpriteAtlas('./sprites/uiRedbox.png', './redBox.json');
-loadSprite('fish', './sprites/fish.png');
-loadSound('grow', './sounds/grow1.wav');
-loadSound('explode', './sounds/explode1.wav');
-loadSound('bgm', './sounds/abstractionDeepBlue.wav');
-loadSound('lose', './sounds/lose.wav');
-loadSound('hit', './sounds/hit1.wav');
-loadSound('heal', './sounds/threeTone2.ogg');
-
 
 scene('game', () => {
 	layers([
 		"bg",
 		"game",
 		"ui",
-	], 'game')
+	], 'game');
 
 	cursor('none');
-
-	// const bgm = play('bgm', {
-	// 	volume: .1
-	// });	
-	let floor = addLevel(LEVELS.one.floor, {
-		width: 16 * SCALE,
-		height: 16 * SCALE,
-		" ": () => [
-			sprite("floorTiles", { frame: ~~rand(0, 7) }),
-			scale(SCALE),
-			origin('center'),
-			layer('bg')
-		],
-		"t": () => [
-			sprite("wallFaceTiles", { frame: ~~rand(0, 6) }),
-			scale(SCALE),
-			origin('center'),
-			layer('bg'),
-			"wall"
-		]
-	});
-
-	let map = addLevel(LEVELS.one.map, {
-		width: 16 * SCALE,
-		height: 16 * SCALE,
-		"$": () => [
-			sprite("skeleton"),
-			scale(SCALE),
-			area({ offset: vec2(0, -25) }),
-			solid(),
-			layer('game'),
-			origin('center')
-		],
-		"p": () => [
-			sprite("potionRed"),
-			scale(SCALE),
-			area({ width: 8, height: 8 }),
-			layer('game'),
-			origin('center'),
-			"potion"
-		],
-		"w": () => [
-			sprite("wallB"),
-			scale(SCALE),
-			area({ offset: 20 }),
-			solid(),
-			layer('game'),
-			origin('center'),
-			"wall"
-		],
-		"r": () => [
-			sprite("wallR"),
-			scale(SCALE),
-			area({ offset: 32 }),
-			solid(),
-			layer('game'),
-			origin('top'),
-			"wall"
-		],
-		"l": () => [
-			sprite("wallL"),
-			scale(SCALE),
-			area({ offset: -32 }),
-			solid(),
-			layer('game'),
-			origin('topleft'),
-			"wall"
-		]
-	});
-
+	addFloor(SCALE);
+	addMap(SCALE);
 
 	const player = add([
 		sprite('ogre', { anim: 'idle' }),

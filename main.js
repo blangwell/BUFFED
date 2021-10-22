@@ -14,11 +14,13 @@ loadSprite('fish', './sprites/fish.png');
 loadSound('grow', './sounds/grow1.wav');
 loadSound('explode', './sounds/explode1.wav');
 loadSound('bgm', './sounds/abstractionDeepBlue.wav');
+loadSound('lose', './sounds/lose.wav');
+loadSound('hit', './sounds/hit1.wav');
 
 scene('game', () => {
 	cursor('crosshair');
 
-	play('bgm', {
+	const bgm = play('bgm', {
 		volume: .1
 	});	
 	let floor = addLevel(LEVELS.one.floor, {
@@ -74,17 +76,47 @@ scene('game', () => {
 	});
 
 
-	const ogre = add([
+	const player = add([
 		sprite('ogre', { anim: 'idle' }),
 		pos(width() / 2, height() / 2),
 		origin('center'),
 		scale(SCALE),
 		area({ width: 14, height: 14 }),
+		health(3),
 		solid(),
 		z(2),
-		"ogre"
+		"player"
 	]);
-	ogre.direction = RIGHT;
+	player.invulnerable = false;
+	player.collides('slime', () => {
+		console.log(player.hp())
+		if (!player.invulnerable) {
+			play('hit');
+			player.hurt(1);
+			player.opacity = .4;
+			// flicker when damaged
+			let flicker = setInterval(() => {
+				player.opacity = player.opacity == 1 ? .4 : 1; 
+			}, 150)
+			wait(1, () => clearInterval(flicker));
+		}
+		player.invulnerable = true;
+		wait(1, () => {
+			player.invulnerable = false;
+			player.opacity = 1;
+		});
+	});
+
+	on("hurt", "player", player => {
+		player.color = rgb(255, 0, 0);
+		wait(.5, () => player.color = null);
+	});
+
+	on("death", "player", player => {
+		bgm.pause();
+		play('lose');
+		go('mainMenu');
+	});
 
 	const slime = add([
 		sprite('slime', { anim: 'idle' }),
@@ -116,25 +148,22 @@ scene('game', () => {
 
 	// SLIME COLLISION / DEATH
 	on("death", "slime", slime => {
-		burp({ volume: .3 });
+		burp({ volume: .4 });
 		play('explode');
 		slime.destroy();
 		add([
 			sprite("puff", { anim: "puff"}),
 			pos(slime.pos.x, slime.pos.y),
 			origin('center'),
+			lifespan(.5),
 			scale(SCALE + 3)
 		]);
 	});
 
-	collides("projectile", "wall", (projectile) => {
-		projectile.destroy();
-	});
-
 	// sprite animation 
-	const movementKeys = ['left', 'a', 'right', 'd', 'down', 's', 'up', 'w']
+	const movementKeys = ['w', 'a', 's', 'd'];
 	keyPress(movementKeys, () => {
-		ogre.play('walk');
+		player.play('walk');
 	});
 	keyRelease(movementKeys, () => {
 		for (let key of movementKeys) {
@@ -142,43 +171,22 @@ scene('game', () => {
 				return;
 			}
 		}
-		ogre.play('idle');
+		player.play('idle');
 	});
 
-	keyPress(['left', 'a'], () => {
-		if (!keyIsDown('right') && !keyIsDown('d')) {
-			ogre.flipX(true);
-			ogre.direction = LEFT;
-		}
-	});
-	keyPress(['right', 'd'], () => {
-		if (!keyIsDown('left') && !keyIsDown('a')) {
-			ogre.flipX(false);
-			ogre.direction = RIGHT;
-		}
-	});
-	keyPress(['up', 'w'], () => {
-		if (!keyIsDown('down') && !keyIsDown('s')) {
-			ogre.direction = UP;
-		}
-	});
-	keyPress(['down', 's'], () => {
-		if (!keyIsDown('up') && !keyIsDown('w')) {
-			ogre.direction = DOWN;
-		}
-	});
+	// INPUTS
 	// pc movement logic
-	keyDown(['left', 'a'], () => {
-		ogre.move(-150, 0);
+	keyDown('a', () => {
+		player.move(-150, 0);
 	});
-	keyDown(['right', 'd'], () => {
-		ogre.move(150, 0);
+	keyDown('d', () => {
+		player.move(150, 0);
 	});
-	keyDown(['up', 'w'], () => {
-		ogre.move(0, -150);
+	keyDown('w', () => {
+		player.move(0, -150);
 	});
-	keyDown(['down', 's'], () => {
-		ogre.move(0, 150);
+	keyDown('s', () => {
+		player.move(0, 150);
 	});
 
 	// PROJECTILE LOGIC
@@ -186,21 +194,30 @@ scene('game', () => {
 		let dest = mousePos();
 		let projectile = add([
 			sprite('fish'),
-			pos(ogre.pos.x, ogre.pos.y),
+			pos(player.pos.x, player.pos.y),
 			area(),
-			move(dest.angle(ogre.pos), 250),
+			move(dest.angle(player.pos), 250),
 			scale(SCALE - 1),
 			rotate(0),
 			cleanup(),
 			origin('center'),
 			"projectile"
 		]);
-		
 		projectile.action(() => {
 			projectile.angle += 300 * dt();
-		})
+		});
 	});
 
+	// FLIP PLAYER BASED ON MOUSE POSITION
+	mouseMove(() => {
+		if (mousePos().x < player.pos.x) {
+			player.flipX(true);
+		} else {
+			player.flipX(false);
+		}
+	});
+
+	// COLLISIONS
 	// GROW ON SHOOT LOGIC
 	collides('slime', 'projectile', (slime, projectile) => {
 		projectile.destroy();
@@ -212,30 +229,41 @@ scene('game', () => {
 		slime.scaleTo(SCALE + slime.timesFed);
 	});
 
-}); // END SCENE
+	// collides('player', 'slime', (player, slime) => {
+	// 	player.hurt(1);
+	// 	console.log(player.hp());
+	// });
+
+
+	// PROJECTILE WALL COLLISION 
+	collides("projectile", "wall", (projectile) => {
+		projectile.destroy();
+	});
+
+}); 
+// =========== END SCENE ===========
+
 
 scene('mainMenu', () => {
 	add([
 		text('HUGE', {
 			size: 200,
-			font: "apl386"
+			font: "sinko"
 		}),
 		pos(width() / 2, height() / 2),
 		origin('center')
 	]);
 	add([
 		text('Press space to play', {
-			size: 50
+			size: 50,
+			font: "sink"
 		}),
 		pos(width() / 2, height() / 2 + 100),
 		origin('top')
 	]);
-
 	keyPress(['space'], () => {
 		go('game');
 	});
-
 });
-
 
 go('mainMenu');

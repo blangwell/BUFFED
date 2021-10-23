@@ -50,5 +50,24 @@
                 "speed": 5
             }
         }
+    },
+    "door": {
+        "x": 0,
+        "y": 112,
+        "width":  448,
+        "height": 32,
+        "sliceX": 14,
+        "sliceY": 1,
+        "anims": {
+            "locked": {
+                "from": 0,
+                "to": 0
+            },
+            "unlock": {
+                "from": 0,
+                "to": 13,
+                "speed": 3
+            }
+        }
     }
 }

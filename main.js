@@ -105,8 +105,23 @@ scene('game', () => {
 			pos(cat.pos.x, cat.pos.y),
 			origin('center'),
 			lifespan(.5),
-			scale(SCALE + 3)
+			scale(SCALE + 5)
 		]);
+		if (get('cat').length === 0) {
+			let staircase = add([
+				sprite('staircase'),
+				scale(SCALE + 2),
+				pos(cat.pos.x, cat.pos.y),
+				area({ width: 1, height: 1 }),
+				origin('center'),
+				layer('bg'),
+				'staircase'
+			])
+			player.collides('staircase', () => {
+				go('gameOver');
+
+			})
+		}
 	});
 
 	// sprite animation 
@@ -172,13 +187,12 @@ scene('game', () => {
 			projectile.action(() => {
 				projectile.angle += 300 * dt();
 			});
-
 		}
 	});
 
-	keyPress('f', () => {
-		fullscreen(!isFullscreen());
-	})
+	// keyPress('f', () => {
+	// 	fullscreen(!isFullscreen());
+	// })
 
 	// COLLISIONS
 	// GROW ON SHOOT LOGIC

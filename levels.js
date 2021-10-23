@@ -28,7 +28,7 @@ const LEVELS = {
 			"l               b  r",
 			"l o                r",
 			"l                  r",
-			"awwwwwwwwwwwwwwwwwwd",
+			",wwwwwwwwwwwwwwwwww.",
 		]
 	}
 }
@@ -115,7 +115,7 @@ export function addMap(scale) {
 			k.origin('center'),
 			"wall"
 		],
-		"a": () => [
+		",": () => [
 			k.sprite("wallBL"),
 			k.scale(scale),
 			k.area({ offset: vec2(-10, 20) }),
@@ -124,7 +124,7 @@ export function addMap(scale) {
 			k.origin('center'),
 			"wall"
 		],
-		"d": () => [
+		".": () => [
 			k.sprite("wallBR"),
 			k.scale(scale),
 			k.area({ offset: vec2(0, 20) }),
@@ -132,6 +132,15 @@ export function addMap(scale) {
 			k.layer('game'),
 			k.origin('center'),
 			"wall"
+		],
+		"d": () => [
+			k.sprite('door', { anim: 'locked' }),
+			k.scale(scale),
+			k.area(),
+			k.solid(),
+			k.layer('game'),
+			k.origin('center'),
+			"door"
 		],
 		"b": () => [
 			k.sprite('cats', { anim: 'blackIdle' }),

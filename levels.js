@@ -34,7 +34,6 @@ const LEVELS = {
 }
 
 
-
 export function addFloor(scale) {
 	addLevel(LEVELS.one.floor, {
 		width: 16 * scale,

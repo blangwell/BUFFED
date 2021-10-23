@@ -8,6 +8,8 @@ loadSprite('crosshair', './sprites/crosshair.png');
 loadSpriteAtlas('./sprites/tmDungeon.png', './tilemap.json');
 loadSpriteAtlas('./sprites/ssFantasy.png', './fantasySpriteAtlas.json');
 loadSpriteAtlas('./sprites/uiRedbox.png', './redBox.json');
+loadSpriteAtlas('./sprites/ssCats.png', './ssCats.json');
+
 loadSprite('fish', './sprites/fish.png');
 loadSound('grow', './sounds/grow1.wav');
 loadSound('explode', './sounds/explode1.wav');

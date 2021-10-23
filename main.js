@@ -13,7 +13,7 @@ scene('game', () => {
 	addMap(SCALE);
 
 	const player = add([
-		sprite('ogre', { anim: 'idle' }),
+		sprite('pc', { anim: 'idle' }),
 		pos(width() / 2, height() / 2),
 		origin('center'),
 		layer('game'),
@@ -92,12 +92,13 @@ scene('game', () => {
 
 	// ADD SLIMES
 	add([
-		sprite('slime', { anim: 'idle' }),
+		sprite('cats', { anim: 'blackIdle' }),
 		pos(200, 200),
 		origin('center'),
 		layer('game'),
 		scale(SCALE),
-		area({ width: 12, height: 8, offset: {x: 0, y: 3} }),
+		// area({ width: 12, height: 8, offset: {x: 0, y: 3} }),
+		area(),
 		solid(),
 		health(3),
 		{
@@ -106,12 +107,13 @@ scene('game', () => {
 		"slime"
 	]);
 	add([
-		sprite('slime', { anim: 'idle' }),
+		sprite('cats', { anim: 'orangeIdle' }),
 		pos(400, 400),
 		origin('center'),
 		layer('game'),
 		scale(SCALE),
-		area({ width: 12, height: 8, offset: {x: 0, y: 3} }),
+		// area({ width: 12, height: 8, offset: {x: 0, y: 3} }),
+		area(),
 		solid(),
 		health(3),
 		{
@@ -167,9 +169,9 @@ scene('game', () => {
 	mouseMove(() => {
 		crosshair.pos = mousePos();
 		if (mousePos().x < player.pos.x) {
-			player.flipX(true);
-		} else {
 			player.flipX(false);
+		} else {
+			player.flipX(true);
 		}
 	});
 
@@ -177,8 +179,10 @@ scene('game', () => {
 	mouseClick(() => {
 		if (!player.inCooldown) {
 			player.inCooldown = true;
+			player.play('throw');
 			wait(player.cooldownTime, () => {
 				player.inCooldown = false;
+				player.play('idle');
 			})
 			let dest = mousePos();
 			let projectile = add([
@@ -225,7 +229,7 @@ scene('game', () => {
 
 scene('mainMenu', () => {
 	add([
-		text('HUGE', {
+		text('BUFFED', {
 			size: 200,
 			font: "sinko"
 		}),

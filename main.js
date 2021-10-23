@@ -1,7 +1,11 @@
-import {addFloor, addMap} from './levels.js';
-const SCALE = 3;
+import { k } from './load.js';
+import { addFloor, addMap, buildLevel } from './levels.js';
+export const SCALE = 3;
+let currentLevel = 0;
 
 scene('game', () => {
+
+	console.log(k.canvas)
 	layers([
 		"bg",
 		"game",
@@ -9,15 +13,15 @@ scene('game', () => {
 	], 'game');
 
 	cursor('none');
-	addFloor(SCALE);
-	addMap(SCALE);
 
-	const player = get('player')[0];
-	console.log(player);
+	buildLevel(currentLevel);
+
+	let player = get('player')[0];
 	action('player', player => camPos(player.pos));
 	action('cat', cat => {
 		cat.solid = cat.pos.dist(player.pos) <= 64;
 	});
+
 
 	player.collides('cat', () => {
 		if (player.invulnerable) {
@@ -71,7 +75,7 @@ scene('game', () => {
 		go('gameOver');
 	});
 
-	// CUSTOM SPRITE CURSOR
+	// CROSSHAIR SPRITE CURSOR
 	let crosshair = add([
 		sprite('crosshair'),
 		pos(mousePos()),
@@ -97,6 +101,7 @@ scene('game', () => {
 
 	// CAT COLLISION / EXPLOSION
 	on("death", "cat", cat => {
+		clearInterval(cat.meowLoop);
 		burp({ volume: .4 });
 		play('explode');
 		cat.destroy();
@@ -118,8 +123,9 @@ scene('game', () => {
 				'staircase'
 			])
 			player.collides('staircase', () => {
-				go('gameOver');
-
+				play('footsteps');
+				currentLevel++;
+				go('game');
 			})
 		}
 	});
@@ -155,8 +161,9 @@ scene('game', () => {
 
 	// FLIP PLAYER BASED ON MOUSE POSITION
 	mouseMove(() => {
-		crosshair.pos = mousePos();
-		if (mousePos().x < player.pos.x) {
+		let currentMousePos = mousePos();
+		crosshair.pos = currentMousePos;
+		if (currentMousePos.x < player.pos.x) {
 			player.flipX(false);
 		} else {
 			player.flipX(true);
@@ -177,7 +184,7 @@ scene('game', () => {
 				sprite('fish'),
 				pos(player.pos.x, player.pos.y),
 				area(),
-				move(dest.angle(player.pos), 300),
+				move(crosshair.pos.angle(player.pos), 300),
 				scale(SCALE - 1),
 				rotate(0),
 				cleanup(),
@@ -190,9 +197,9 @@ scene('game', () => {
 		}
 	});
 
-	// keyPress('f', () => {
-	// 	fullscreen(!isFullscreen());
-	// })
+	keyPress('f', () => {
+		fullscreen(!isFullscreen());
+	})
 
 	// COLLISIONS
 	// GROW ON SHOOT LOGIC
@@ -231,14 +238,17 @@ scene('mainMenu', () => {
 		pos(width() / 2, height() / 2 + 100),
 		origin('top')
 	]);
-	keyPress(['space'], () => {
+	keyPress('space', () => {
 		go('game');
 	});
+	keyPress('f', () => {
+		fullscreen(!isFullscreen());
+	})
 });
 
 scene('gameOver', () => {
 	add([
-		text('GAME OVER!', {
+		text('GAME OVER', {
 			size: 90,
 			font: "sinko"
 		}),

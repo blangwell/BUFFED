@@ -1,0 +1,10 @@
+{
+    "floorV2": {
+        "x": 0,
+        "y": 0,
+        "width": 256,
+        "height": 32,
+        "sliceX": 8,
+        "sliceY": 1
+    }
+}

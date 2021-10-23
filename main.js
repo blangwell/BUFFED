@@ -12,37 +12,29 @@ scene('game', () => {
 	addFloor(SCALE);
 	addMap(SCALE);
 
-	const player = add([
-		sprite('pc', { anim: 'idle' }),
-		pos(width() / 2, height() / 2),
-		origin('center'),
-		layer('game'),
-		scale(SCALE),
-		area({ width: 14, height: 14 }),
-		health(3),
-		solid(),
-		z(2),
-		"player"
-	]);
-	player.invulnerable = false;
-	player.cooldownTime = .5;
-	player.inCooldown = false;
+	const player = get('player')[0];
+	console.log(player);
+	action('player', player => camPos(player.pos));
+	action('cat', cat => {
+		cat.solid = cat.pos.dist(player.pos) <= 64;
+	});
 
-	player.collides('slime', () => {
-		if (!player.invulnerable) {
-			play('hit');
-			player.hurt(1);
-			updateHealthUI(player.hp());
-			// flicker when damaged
-			let flicker = setInterval(() => {
-				player.opacity = player.opacity == 1 ? .4 : 1; 
-			}, 150)
-			wait(1, () => clearInterval(flicker));
+	player.collides('cat', () => {
+		if (player.invulnerable) {
+			return;
 		}
+		play('hit');
+		player.hurt(1);
 		player.invulnerable = true;
+		updateHealthUI(player.hp());
+		// flicker when damaged
+		let flicker = setInterval(() => {
+			player.opacity = player.opacity == 1 ? .4 : 1; 
+		}, 150);
 		wait(1, () => {
-			player.invulnerable = false;
+			clearInterval(flicker)
 			player.opacity = 1;
+			player.invulnerable = false;
 		});
 	});
 
@@ -61,6 +53,7 @@ scene('game', () => {
 				scale(SCALE),
 				pos(50 + (50 * i), 50),
 				layer('ui'),
+				fixed(),
 				'heart'
 			])
 		}
@@ -78,8 +71,6 @@ scene('game', () => {
 		go('gameOver');
 	});
 
-	
-
 	// CUSTOM SPRITE CURSOR
 	let crosshair = add([
 		sprite('crosshair'),
@@ -90,46 +81,28 @@ scene('game', () => {
 		"crosshair"
 	]);
 
-	// ADD SLIMES
-	add([
-		sprite('cats', { anim: 'blackIdle' }),
-		pos(200, 200),
-		origin('center'),
-		layer('game'),
-		scale(SCALE),
-		// area({ width: 12, height: 8, offset: {x: 0, y: 3} }),
-		area(),
-		solid(),
-		health(3),
-		{
-			timesFed: 0
-		},
-		"slime"
-	]);
-	add([
-		sprite('cats', { anim: 'orangeIdle' }),
-		pos(400, 400),
-		origin('center'),
-		layer('game'),
-		scale(SCALE),
-		// area({ width: 12, height: 8, offset: {x: 0, y: 3} }),
-		area(),
-		solid(),
-		health(3),
-		{
-			timesFed: 0
-		},
-		"slime"
-	]);
+	action('cat', cat => catFollow(cat));
 
-	// SLIME COLLISION / DEATH
-	on("death", "slime", slime => {
+	function catFollow(cat) {
+		if (cat.buffed) {
+			cat.moveTo(player.pos, cat.moveSpeed + 10);
+			if (player.pos.x > cat.pos.x) {
+				cat.flipX(true);
+			} else {
+				cat.flipX(false);
+			}
+		}
+	}
+	
+
+	// CAT COLLISION / EXPLOSION
+	on("death", "cat", cat => {
 		burp({ volume: .4 });
 		play('explode');
-		slime.destroy();
+		cat.destroy();
 		add([
 			sprite("puff", { anim: "puff"}),
-			pos(slime.pos.x, slime.pos.y),
+			pos(cat.pos.x, cat.pos.y),
 			origin('center'),
 			lifespan(.5),
 			scale(SCALE + 3)
@@ -209,14 +182,14 @@ scene('game', () => {
 
 	// COLLISIONS
 	// GROW ON SHOOT LOGIC
-	collides('slime', 'projectile', (slime, projectile) => {
+	collides('cat', 'projectile', (cat, projectile) => {
 		projectile.destroy();
-		if (slime.hp() > 1) {
+		if (cat.hp() > 1) {
 			play('grow');
 		}
-		slime.hurt(1);
-		slime.timesFed++;
-		slime.scaleTo(SCALE + slime.timesFed);
+		cat.hurt(1);
+		cat.timesFed++;
+		cat.scaleTo(SCALE + cat.timesFed);
 	});
 
 	// PROJECTILE WALL COLLISION 
@@ -230,8 +203,8 @@ scene('game', () => {
 scene('mainMenu', () => {
 	add([
 		text('BUFFED', {
-			size: 200,
-			font: "sinko"
+			size: 170,
+			font: "sink"
 		}),
 		pos(width() / 2, height() / 2),
 		origin('center')
@@ -252,7 +225,7 @@ scene('mainMenu', () => {
 scene('gameOver', () => {
 	add([
 		text('GAME OVER!', {
-			size: 100,
+			size: 90,
 			font: "sinko"
 		}),
 		pos(width() / 2, height() / 2),
@@ -260,7 +233,7 @@ scene('gameOver', () => {
 	]);
 	add([
 		text('Press space to play again', {
-			size: 50,
+			size: 25,
 			font: "sink"
 		}),
 		pos(width() / 2, height() / 2 + 100),

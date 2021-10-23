@@ -1,8 +1,19 @@
 import kaboom from "https://unpkg.com/kaboom@next/dist/kaboom.mjs";
 
 export const k = kaboom({
-	background: [0, 0, 0],
+	canvas: document.getElementById("game"),
+	background: [69, 27, 74],
+	width: 800,
+	height: 600,
+	letterbox: true,
+	crisp: true
 });
+
+export const gameConfig = {
+	tileWidth: 16,
+	tileHeight: 16,
+
+}
 
 loadSprite('crosshair', './sprites/crosshair.png');
 loadSpriteAtlas('./sprites/tmDungeon.png', './tilemap.json');

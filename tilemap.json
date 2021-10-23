@@ -146,5 +146,17 @@
         "y": 112,
         "width": 16,
         "height": 16
+    },
+    "wallBL": {
+        "x": 16,
+        "y": 112,
+        "width": 16,
+        "height": 16
+    },
+    "wallBR": {
+        "x": 80,
+        "y": 112,
+        "width": 16,
+        "height": 16
     }
 }

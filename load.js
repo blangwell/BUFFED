@@ -5,7 +5,7 @@ export const k = kaboom({
 	background: [69, 27, 74],
 	width: 800,
 	height: 600,
-	letterbox: true,
+	// letterbox: true,
 	crisp: true
 });
 
@@ -31,4 +31,3 @@ loadSound('hit', './sounds/hit1.wav');
 loadSound('heal', './sounds/threeTone2.ogg');
 loadSound('meow', './sounds/meow.wav');
 loadSound('footsteps', './sounds/footstepV2.wav');
-

@@ -1,11 +1,9 @@
-import { k } from './load.js';
 import { buildLevel } from './levels.js';
 export const SCALE = 3;
 let currentLevel = 0;
 
 scene('game', () => {
-
-	console.log(k.canvas)
+	// ====== SETUP ======
 	layers([
 		"bg",
 		"game",
@@ -13,16 +11,24 @@ scene('game', () => {
 	], 'game');
 
 	cursor('none');
-
 	buildLevel(currentLevel);
 
+	let levelMessage = add([
+		text(`Layer ${currentLevel + 1}`, {
+			font: 'sink',
+			size: 40
+		}),
+		console.log(camPos()),
+		pos(camPos().x, camPos().y),
+		origin('center'),
+		layer('ui'),
+		fixed(),
+		lifespan(2, { fade: 1 })
+	])
+	
+	// ====== PLAYER CHARACTER ======
 	let player = get('player')[0];
 	action('player', player => camPos(player.pos));
-	action('cat', cat => {
-		cat.solid = cat.pos.dist(player.pos) <= 64;
-	});
-
-
 	player.collides('cat', () => {
 		if (player.invulnerable) {
 			return;
@@ -31,7 +37,7 @@ scene('game', () => {
 		player.hurt(1);
 		player.invulnerable = true;
 		updateHealthUI(player.hp());
-		// flicker when damaged
+		// flicker when damaged TODO: Add wave()
 		let flicker = setInterval(() => {
 			player.opacity = player.opacity == 1 ? .4 : 1; 
 		}, 150);
@@ -41,13 +47,28 @@ scene('game', () => {
 			player.invulnerable = false;
 		});
 	});
-
+	updateHealthUI(player.hp());
+	
 	player.collides('potion', potion => {
 		player.heal(1);
 		play('heal', { volume: .5 });
 		updateHealthUI(player.hp());
 		potion.destroy();
 	})
+
+	on("hurt", "player", player => {
+		player.color = rgb(255, 0, 0);
+		wait(.5, () => player.color = null);
+	});
+
+	on("death", "player", () => {
+		// bgm.pause();
+		play('lose');
+		currentLevel = 0;
+		let cats = get('cat');
+		cats.forEach(c => clearInterval(c.meowLoop));
+		go('gameOver');
+	});
 
 	function updateHealthUI(playerHP) {
 		every('heart', destroy);
@@ -62,31 +83,8 @@ scene('game', () => {
 			])
 		}
 	}
-	updateHealthUI(player.hp());
 
-	on("hurt", "player", player => {
-		player.color = rgb(255, 0, 0);
-		wait(.5, () => player.color = null);
-	});
-
-	on("death", "player", () => {
-		// bgm.pause();
-		play('lose');
-		go('gameOver');
-	});
-
-	// CROSSHAIR SPRITE CURSOR
-	let crosshair = add([
-		sprite('crosshair'),
-		pos(mousePos()),
-		scale(SCALE - 1),
-		origin('center'),
-		z(3),
-		"crosshair"
-	]);
-
-	action('cat', cat => catFollow(cat));
-
+	// ====== CAT LOGIC ======
 	function catFollow(cat) {
 		if (cat.buffed) {
 			cat.moveTo(player.pos, cat.moveSpeed + 10);
@@ -97,9 +95,9 @@ scene('game', () => {
 			}
 		}
 	}
-	
 
-	// CAT COLLISION / EXPLOSION
+	action('cat', cat => catFollow(cat));
+
 	on("death", "cat", cat => {
 		clearInterval(cat.meowLoop);
 		burp({ volume: .4 });
@@ -130,7 +128,9 @@ scene('game', () => {
 		}
 	});
 
-	// sprite animation 
+
+	// ===== INPUT =====
+	// walk / idle 
 	const movementKeys = ['w', 'a', 's', 'd'];
 	keyPress(movementKeys, () => {
 		player.play('walk');
@@ -144,8 +144,7 @@ scene('game', () => {
 		player.play('idle');
 	});
 
-	// INPUTS
-	// pc movement logic
+	// movement
 	keyDown('a', () => {
 		player.move(-150, 0);
 	});
@@ -159,33 +158,51 @@ scene('game', () => {
 		player.move(0, 150);
 	});
 
-	// FLIP PLAYER BASED ON MOUSE POSITION
-	mouseMove(() => {
-		let currentMousePos = mousePos();
-		crosshair.pos = currentMousePos;
-		if (currentMousePos.x < player.pos.x) {
-			player.flipX(false);
-		} else {
-			player.flipX(true);
-		}
+	// flipX
+	keyPress('a', () => {
+		player.flipX(false);
+	});
+	keyPress('d', () => {
+		player.flipX(true);
 	});
 
-	// PROJECTILE LOGIC
-	mouseClick(() => {
+	// fullscreen
+	keyPress('f', () => {
+		fullscreen(!isFullscreen());
+	});
+
+	// ====== PROJECTILE LOGIC ======
+	// spawn projectiles
+	keyPress('left', () => {
+		spawnProjectile(LEFT);
+		player.flipX(false);
+	});
+	keyPress('right', () => {
+		spawnProjectile(RIGHT);
+		player.flipX(true);
+	});
+	keyPress('up', () => {
+		spawnProjectile(UP);
+	});
+	keyPress('down', () => {
+		spawnProjectile(DOWN);
+	});
+
+	function spawnProjectile(dir) {
 		if (!player.inCooldown) {
 			player.inCooldown = true;
 			player.play('throw');
 			wait(player.cooldownTime, () => {
 				player.inCooldown = false;
 				player.play('idle');
-			})
-			let dest = mousePos();
+			});
+
 			let projectile = add([
 				sprite('fish'),
 				pos(player.pos.x, player.pos.y),
 				area(),
-				move(crosshair.pos.angle(player.pos), 300),
-				scale(SCALE - 1),
+				move(dir, 300),
+				scale(SCALE),
 				rotate(0),
 				cleanup(),
 				origin('center'),
@@ -195,14 +212,11 @@ scene('game', () => {
 				projectile.angle += 300 * dt();
 			});
 		}
-	});
+	}
 
-	keyPress('f', () => {
-		fullscreen(!isFullscreen());
-	})
+	
 
-	// COLLISIONS
-	// GROW ON SHOOT LOGIC
+	// ====== PROJECILE COLLISIONS ======
 	collides('cat', 'projectile', (cat, projectile) => {
 		projectile.destroy();
 		if (cat.hp() > 1) {
@@ -213,7 +227,6 @@ scene('game', () => {
 		cat.scaleTo(SCALE + cat.timesFed);
 	});
 
-	// PROJECTILE WALL COLLISION 
 	collides("projectile", "wall", (projectile) => {
 		projectile.destroy();
 	});

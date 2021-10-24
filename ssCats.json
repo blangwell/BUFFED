@@ -10,7 +10,7 @@
             "idle": {
                 "from": 0,
                 "to": 9,
-                "speed": 2,
+                "speed": 2.5,
                 "loop": true
             },
             "walk": {
@@ -22,7 +22,7 @@
             "throw": {
                 "from": 20,
                 "to": 21,
-                "speed": 7,
+                "speed": 9,
                 "loop": false
             }
         }

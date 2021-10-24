@@ -1,6 +1,6 @@
 import { buildLevel } from './levels.js';
 export const SCALE = 3;
-let currentLevel = 0;
+let currentLevel = 3;
 
 scene('game', () => {
 	// ====== SETUP ======
@@ -16,9 +16,8 @@ scene('game', () => {
 	let levelMessage = add([
 		text(`Layer ${currentLevel + 1}`, {
 			font: 'sink',
-			size: 40
+			size: 40,
 		}),
-		console.log(camPos()),
 		pos(camPos().x, camPos().y),
 		origin('center'),
 		layer('ui'),
@@ -37,7 +36,6 @@ scene('game', () => {
 		player.hurt(1);
 		player.invulnerable = true;
 		updateHealthUI(player.hp());
-		// flicker when damaged TODO: Add wave()
 		let flicker = setInterval(() => {
 			player.opacity = player.opacity == 1 ? .4 : 1; 
 		}, 150);
@@ -86,7 +84,8 @@ scene('game', () => {
 
 	// ====== CAT LOGIC ======
 	function catFollow(cat) {
-		if (cat.buffed) {
+		if (cat.pos.dist(player.pos) <= 500 || cat.aggro === true) {
+			cat.aggro = true;
 			cat.moveTo(player.pos, cat.moveSpeed + 10);
 			if (player.pos.x > cat.pos.x) {
 				cat.flipX(true);
@@ -131,17 +130,18 @@ scene('game', () => {
 
 	// ===== INPUT =====
 	// walk / idle 
-	const movementKeys = ['w', 'a', 's', 'd'];
-	keyPress(movementKeys, () => {
+	keyPress(['w', 'a', 's', 'd'], () => {
 		player.play('walk');
 	});
-	keyRelease(movementKeys, () => {
-		for (let key of movementKeys) {
-			if (keyIsDown(key)) {
-				return;
-			}
+	keyRelease(['w', 'a', 's', 'd'], () => {
+		if (
+			!keyIsDown('w') &&
+			!keyIsDown('a') &&
+			!keyIsDown('s') &&
+			!keyIsDown('d') 
+			) {
+				player.play('idle');
 		}
-		player.play('idle');
 	});
 
 	// movement
@@ -194,7 +194,16 @@ scene('game', () => {
 			player.play('throw');
 			wait(player.cooldownTime, () => {
 				player.inCooldown = false;
-				player.play('idle');
+				if (
+					!keyIsDown('w') &&
+					!keyIsDown('a') &&
+					!keyIsDown('s') &&
+					!keyIsDown('d') 
+				) {
+					player.play('idle');
+				} else {
+					player.play('walk');
+				}
 			});
 
 			let projectile = add([

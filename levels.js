@@ -5,9 +5,8 @@ const LEVEL_LIST =  [
 	{ // LEVEL 1
 		floor: [
 			"ssssssssssssssssssss",
-			"                    ",
-			"                    ",
-			"                    ",
+			"ssssssssssssssssssss",
+			// "                    ",
 			"                    ",
 			"                    ",
 			"                    ",
@@ -19,63 +18,66 @@ const LEVEL_LIST =  [
 		],
 		map: [
 			"wwwwwwwwwwwwwwwwwwww",
-			"l  $      $       $r",
-			"l           p      r",
-			"l                  r",
-			"l     h            r",
-			"l                  r",
-			"l                  r",
-			"l                  r",
-			"l               b  r",
-			"l o                r",
-			"l                  r",
-			",xxxxxxxxxxxxxxxxxx.",
+			"a--$---------$----$d",
+			"a           p      d",
+			"a                  d",
+			"a     h            d",
+			"a                  d",
+			"a                  d",
+			"a               b  d",
+			"a o                d",
+			"zxxxxxxxxxxxxxxxxxxc",
 		]
 	}, { // LEVEL 2
 		floor: [
-			"sssssssssssssssssssssssssssssssssssssssssss",
-			"                                           ",
-			"                                           ",
-			"                                           ",
-			"                                           ",
-			"                                           ",
-			"                                           ",
-			"                                           ",
+			"ssssssssssssssssssssssssssssssssssss",
+			"ssssssssssssssssssssssssssssssssssss",
+			// "                      ssssssssssssss",
+			"sssssssssssssss       ssssssssssssss",
+			"sssssssssssssss       ssssssssssssss",
+			"sssssssssssssss       ssssssssssssss",
+			"                                    ",
+			"                                    ",
+			"                                    ",
+			"                                    ",
+			"                                    ",
 		],
 		map: [
-			"wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
-			"l                                      o  r",
-			"l                                         r",
-			"l                                         r",
-			"l              p                          r",
-			"l                          h              r",
-			"l   o                                 b   r",
-			",xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxr",
+			"wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+			"----------$--------------$------$---",
+			"a-------------d   o   a------------d",
+			"wwwwwwwwwwwwwww    h  wwwwwwwwwwwwww",
+			"a--------------       -------------d",
+			"a        b                         d",
+			"a               p                  d",
+			"a                                  d",
+			"a   o                          b   d",
+			"zxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxc",
 		]
 	}, { // LEVEL 3
 		floor: [
-			"ssssssssssssssssssssssssssssssssssssss",
-			"                                      ",
-			"                                      ",
-			"                                      ",
-			"                                      ",
-			"                                      ",
-			"                                      ",
-			"                                      ",
-			"                                      ",
-			"                                      ",
+			"sssssssssssssssssssssssssssss",
+			"                             ",
+			"                             ",
+			"                             ",
+			"                             ",
+			"                             ",
+			"                             ",
+			"                             ",
+			"                             ",
+			"                             ",
 		],
 		map: [
-			"wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
-			"l                                    r",
-			"l        o                           r",
-			"l                                    r",
-			"l                                    r",
-			"l     b           p                  r",
-			"l                                    r",
-			"l                               b    r",
-			"l                                 h  r",
-			",xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.",
+			"wwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+			"a                           d",
+			"a        o                  d",
+			"a                           d",
+			"a                           d",
+			"a     b           p         d",
+			"a                           d",
+			"a          o             b  d",
+			"a                        h  d",
+			"zxxxxxxxxxxxxxxxxxxxxxxxxxxxc",
 		]
 	}
 ];
@@ -144,7 +146,7 @@ const mapKey = {
 		k.origin('center'),
 		"wall"
 	],
-	"r": () => [
+	"d": () => [
 		k.sprite("wallR"),
 		k.scale(SCALE),
 		k.area({ offset: vec2(28, 20) }),
@@ -153,7 +155,7 @@ const mapKey = {
 		k.origin('center'),
 		"wall"
 	],
-	"l": () => [
+	"a": () => [
 		k.sprite("wallL"),
 		k.scale(SCALE),
 		k.area({ offset: vec2(-25,0) }),
@@ -162,7 +164,7 @@ const mapKey = {
 		k.origin('center'),
 		"wall"
 	],
-	",": () => [
+	"z": () => [
 		k.sprite("wallBL"),
 		k.scale(SCALE),
 		k.area({ offset: vec2(-10, 20) }),
@@ -171,7 +173,7 @@ const mapKey = {
 		k.origin('center'),
 		"wall"
 	],
-	".": () => [
+	"c": () => [
 		k.sprite("wallBR"),
 		k.scale(SCALE),
 		k.area({ offset: vec2(0, 20) }),
@@ -179,15 +181,6 @@ const mapKey = {
 		k.layer('game'),
 		k.origin('center'),
 		"wall"
-	],
-	"d": () => [
-		k.sprite('door', { anim: 'locked' }),
-		k.scale(SCALE),
-		k.area(),
-		k.solid(),
-		k.layer('game'),
-		k.origin('center'),
-		"door"
 	],
 	"b": () => [
 		k.sprite('cats', { anim: 'blackIdle' }),

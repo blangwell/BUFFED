@@ -1,5 +1,5 @@
 import { k } from './load.js';
-import { addFloor, addMap, buildLevel } from './levels.js';
+import { buildLevel } from './levels.js';
 export const SCALE = 3;
 let currentLevel = 0;
 
@@ -55,7 +55,7 @@ scene('game', () => {
 			add([
 				sprite('gold'),
 				scale(SCALE),
-				pos(50 + (50 * i), 50),
+				pos(40 + (50 * i), 30	),
 				layer('ui'),
 				fixed(),
 				'heart'

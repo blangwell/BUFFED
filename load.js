@@ -5,7 +5,6 @@ export const k = kaboom({
 	background: [69, 27, 74],
 	width: 800,
 	height: 600,
-	// letterbox: true,
 	crisp: true
 });
 
@@ -15,13 +14,14 @@ export const gameConfig = {
 
 }
 
-loadSprite('crosshair', './sprites/crosshair.png');
+loadSprite('splashScreen', './sprites/splashScreen.png');
+loadSprite('gameOverScreen', './sprites/gameOverScreen.png');
 loadSprite('fish', './sprites/fish.png');
 loadSpriteAtlas('./sprites/tmDungeon.png', './tilemap.json');
 loadSpriteAtlas('./sprites/ssFantasy.png', './fantasySpriteAtlas.json');
-loadSpriteAtlas('./sprites/uiRedbox.png', './redBox.json');
-loadSpriteAtlas('./sprites/ssCats.png', './ssCats.json');
 loadSpriteAtlas('./sprites/ssTilemapV2.png', './tilemapV2.json');
+
+loadSpriteAtlas('./sprites/ssChars.png', './ssChars.json');
 
 loadSound('grow', './sounds/grow1.wav');
 loadSound('explode', './sounds/explode1.wav');
@@ -31,3 +31,4 @@ loadSound('hit', './sounds/hit1.wav');
 loadSound('heal', './sounds/threeTone2.ogg');
 loadSound('meow', './sounds/meow.wav');
 loadSound('footsteps', './sounds/footstepV2.wav');
+loadSound('eliteMeow', './sounds/eliteMeow.wav');

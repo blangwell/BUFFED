@@ -2,9 +2,77 @@
     "floorV2": {
         "x": 0,
         "y": 0,
-        "width": 256,
+        "width": 384,
         "height": 32,
-        "sliceX": 8,
+        "sliceX": 12,
         "sliceY": 1
+    },
+    "wallFaceTilesV2": {
+        "x": 0,
+        "y": 32,
+        "width": 224,
+        "height": 32,
+        "sliceX": 7,
+        "sliceY": 1
+    },
+    "wallTL": {
+        "x": 0,
+        "y": 128,
+        "width": 32,
+        "height": 32
+    },
+    "wallT": {
+        "x": 32,
+        "y": 160,
+        "width": 32,
+        "height": 32
+    },
+    "wallTR": {
+        "x": 128,
+        "y": 128,
+        "width": 32,
+        "height": 32
+    },
+    "wallBL": {
+        "x": 0,
+        "y": 160,
+        "width": 32,
+        "height": 32
+    },
+    "wallBR": {
+        "x": 128,
+        "y": 160,
+        "width": 32,
+        "height": 32
+    },
+    "wallL": {
+        "x": 64,
+        "y": 96,
+        "width": 32,
+        "height": 32
+    },
+    "wallLTop": {
+        "x": 64,
+        "y":64,
+        "width": 32,
+        "height": 32
+    },
+    "wallR": {
+        "x": 96,
+        "y": 128,
+        "width": 32,
+        "height": 32
+    }, 
+    "wallRTop": {
+        "x": 96,
+        "y": 96,
+        "width": 32,
+        "height": 32
+    }, 
+    "wallB": {
+        "x": 32,
+        "y": 160,
+        "width": 32,
+        "height": 32
     }
 }

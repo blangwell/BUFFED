@@ -1,8 +1,9 @@
 import { buildLevel } from './levels.js';
 export const SCALE = 3;
-let currentLevel = 3;
+let currentLevel = 4;
 
 scene('game', () => {
+	// debug.inspect = true;
 	// ====== SETUP ======
 	layers([
 		"bg",
@@ -12,18 +13,6 @@ scene('game', () => {
 
 	cursor('none');
 	buildLevel(currentLevel);
-
-	let levelMessage = add([
-		text(`Layer ${currentLevel + 1}`, {
-			font: 'sink',
-			size: 40,
-		}),
-		pos(camPos().x, camPos().y),
-		origin('center'),
-		layer('ui'),
-		fixed(),
-		lifespan(2, { fade: 1 })
-	])
 	
 	// ====== PLAYER CHARACTER ======
 	let player = get('player')[0];
@@ -82,17 +71,20 @@ scene('game', () => {
 		}
 	}
 
+	console.log(get('cat')[0])
 	// ====== CAT LOGIC ======
 	function catFollow(cat) {
 		if (cat.pos.dist(player.pos) <= 500 || cat.aggro === true) {
 			cat.aggro = true;
-			cat.moveTo(player.pos, cat.moveSpeed + 10);
+			if (!cat.stationary) {
+				cat.moveTo(player.pos, cat.moveSpeed + 10);
+			}
 			if (player.pos.x > cat.pos.x) {
 				cat.flipX(true);
 			} else {
 				cat.flipX(false);
 			}
-		}
+		} 
 	}
 
 	action('cat', cat => catFollow(cat));
@@ -122,7 +114,7 @@ scene('game', () => {
 			player.collides('staircase', () => {
 				play('footsteps');
 				currentLevel++;
-				go('game');
+				go('transition');
 			})
 		}
 	});
@@ -233,11 +225,25 @@ scene('game', () => {
 		}
 		cat.hurt(1);
 		cat.timesFed++;
-		cat.scaleTo(SCALE + cat.timesFed);
+		cat.scaleTo(SCALE + cat.timesFed * cat.growModifier);
 	});
 
 	collides("projectile", "wall", (projectile) => {
 		projectile.destroy();
+	});
+
+	
+	collides('player', 'elite', (player, elite) => {
+		elite.play('eliteAttack');
+	});
+	
+	
+	// ====== COLLISION DIST TOGGLE ======
+	action('cat', c => {
+		c.solid = c.pos.dist(player.pos) <= 64 * SCALE;
+	});
+	action('wall', c => {
+		c.solid = c.pos.dist(player.pos) <= 64 * SCALE;
 	});
 
 }); 
@@ -245,49 +251,138 @@ scene('game', () => {
 
 scene('mainMenu', () => {
 	add([
-		text('BUFFED', {
-			size: 170,
+		sprite('splashScreen'),
+		pos(0, 0),
+		layer('bg')
+	])
+	let pressSpace = add([
+		text('Press SPACE to Play', {
+			size: 40,
 			font: "sink"
 		}),
-		pos(width() / 2, height() / 2),
-		origin('center')
-	]);
-	add([
-		text('Press space to play', {
-			size: 50,
-			font: "sink"
-		}),
-		pos(width() / 2, height() / 2 + 100),
+		pos(width() / 2, height() / 2 + 150),
 		origin('top')
 	]);
-	keyPress('space', () => {
-		go('game');
+	loop(2, () => {
+		pressSpace.opacity = 1;
+		wait(1, () => {
+			pressSpace.opacity = 0;
+		});
+	});
+	keyPress(() => {
+		go('instructions');
 	});
 	keyPress('f', () => {
 		fullscreen(!isFullscreen());
 	})
 });
 
-scene('gameOver', () => {
+scene('instructions', () => {
 	add([
-		text('GAME OVER', {
-			size: 90,
-			font: "sinko"
-		}),
-		pos(width() / 2, height() / 2),
-		origin('center')
+		sprite('splashScreen'),
+		pos(0, 0),
+		layer('bg')
 	]);
 	add([
-		text('Press space to play again', {
+		pos(0, 0),
+		color(0,0,0),
+		rect(width(), height(), {
+			fill: true,
+		}),
+		opacity(.5),
+		layer('game'),
+	]);
+	add([
+		text('WASD => Move\n\nArrow Keys => Throw Fish\n\nF => Fullscreen', {
+			font: 'sink',
+			size: 40
+		}),
+		pos(width() / 2, height() / 2),
+		origin('center'),
+	]);
+	wait(3, () => {
+		go('transition');
+	})
+	keyPress(() => {
+		go('transition');
+	});
+});
+
+scene('gameOver', () => {
+	add([
+		sprite('gameOverScreen'),
+		pos(0, 0),
+		layer('bg')
+	]);
+	
+	// add([
+	// 	text('GAME OVER', {
+	// 		size: 90,
+	// 		font: "sinko"
+	// 	}),
+	// 	pos(width() / 2, height() / 2),
+	// 	origin('center')
+	// ]);
+	let pressSpace = add([
+		text('Press SPACE to Play Again', {
 			size: 25,
 			font: "sink"
 		}),
-		pos(width() / 2, height() / 2 + 100),
+		pos(width() / 2, height() / 2 + 150),
 		origin('top')
 	]);
-	keyPress(['space'], () => {
-		go('game');
+	loop(2, () => {
+		pressSpace.opacity = 1;
+		wait(1, () => {
+			pressSpace.opacity = 0;
+		});
 	});
+	keyPress(['space'], () => {
+		go('transition');
+	});
+});
+
+scene('transition', () => {
+	add([
+		pos(0, 0),
+		color(0,0,0),
+		rect(width(), height(), {
+			fill: true,
+		}),
+		layer('game'),
+	]);
+	add([
+		text(`Layer ${currentLevel + 1}`, {
+			font: 'sink',
+			size: 40,
+		}),
+		pos(camPos().x, camPos().y),
+		origin('center'),
+		layer('ui'),
+		fixed(),
+		stay(),
+		lifespan(2.5, { fade: 1 })
+	])
+	wait(1.5, () => go('game'));
+});
+
+scene('intro', () => {
+	add([
+		pos(0, 0),
+		color(0,0,0),
+		rect(width(), height(), {
+			fill: true,
+		}),
+		layer('game'),
+	]);
+	add([
+		text('Long ago...', {
+			font: 'sink',
+			size: 40,
+		}),
+		pos(camPos().x, camPos().y),
+		opacity
+	])
 })
 
 go('mainMenu');

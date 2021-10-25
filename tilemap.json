@@ -116,47 +116,5 @@
         "y": 80,
         "width": 48,
         "height": 16
-    },
-    "wallTR": {
-        "x": 128,
-        "y": 96,
-        "width": 16,
-        "height": 16
-    },
-    "wallTL": {
-        "x": 112,
-        "y": 96,
-        "width": 16,
-        "height": 16
-    },
-    "wallL": {
-        "x": 48,
-        "y": 80,
-        "width": 16,
-        "height": 16
-    },
-    "wallR": {
-        "x": 64,
-        "y": 80,
-        "width": 16,
-        "height": 16
-    },
-    "wallB": {
-        "x": 32,
-        "y": 112,
-        "width": 16,
-        "height": 16
-    },
-    "wallBL": {
-        "x": 16,
-        "y": 112,
-        "width": 16,
-        "height": 16
-    },
-    "wallBR": {
-        "x": 80,
-        "y": 112,
-        "width": 16,
-        "height": 16
     }
 }

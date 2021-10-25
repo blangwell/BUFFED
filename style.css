@@ -9,8 +9,4 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-}  
-/* 
-canvas {
-    cursor: url('./sprites/crosshair.png'), none !important;
-} */
+}

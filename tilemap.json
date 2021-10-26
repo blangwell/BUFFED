@@ -59,22 +59,6 @@
         "width": 16,
         "height": 16
     }, 
-    "floorTiles": {
-        "x": 32,
-        "y": 32,
-        "width": 64,
-        "height": 32,
-        "sliceX": 4,
-        "sliceY": 2
-    },
-    "wallFaceTiles": {
-        "x": 96,
-        "y": 64,
-        "width": 48,
-        "height": 32,
-        "sliceX": 3,
-        "sliceY": 2
-    },
     "wallFace1": {
         "x": 96,
         "y": 64,

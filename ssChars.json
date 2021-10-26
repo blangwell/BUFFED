@@ -62,8 +62,7 @@
             "calicoThrow": {
                 "from": 13,
                 "to": 15,
-                "speed": 2,
-                "loop": true
+                "speed": 7
             },
             "eliteIdle": {
                 "from": 18,

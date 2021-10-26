@@ -1,9 +1,9 @@
 import { buildLevel } from './levels.js';
 export const SCALE = 3;
-let currentLevel = 4;
+let currentLevel = 7;
 
 scene('game', () => {
-	// debug.inspect = true;
+	debug.inspect = true;
 	// ====== SETUP ======
 	layers([
 		"bg",
@@ -16,32 +16,23 @@ scene('game', () => {
 	
 	// ====== PLAYER CHARACTER ======
 	let player = get('player')[0];
+	updateHealthUI(player.hp());
+	
 	action('player', player => camPos(player.pos));
 	player.collides('cat', () => {
-		if (player.invulnerable) {
-			return;
-		}
-		play('hit');
-		player.hurt(1);
-		player.invulnerable = true;
-		updateHealthUI(player.hp());
-		let flicker = setInterval(() => {
-			player.opacity = player.opacity == 1 ? .4 : 1; 
-		}, 150);
-		wait(1, () => {
-			clearInterval(flicker)
-			player.opacity = 1;
-			player.invulnerable = false;
-		});
+		playerDamage();
 	});
-	updateHealthUI(player.hp());
+
+	player.collides('barf', () => {
+		playerDamage();
+	})
 	
 	player.collides('potion', potion => {
 		player.heal(1);
 		play('heal', { volume: .5 });
 		updateHealthUI(player.hp());
 		potion.destroy();
-	})
+	});
 
 	on("hurt", "player", player => {
 		player.color = rgb(255, 0, 0);
@@ -87,10 +78,33 @@ scene('game', () => {
 		} 
 	}
 
+	let throwers = get('throw');
+	loop(1.5, () => {
+		for (let thrower of throwers) {
+			if (thrower.aggro) {
+				thrower.play('calicoThrow');
+				if (thrower.hp() > 0) {
+					add([
+						sprite('gold'),
+						pos(thrower.pos.x, thrower.pos.y),
+						area(),
+						move(player.pos.angle(thrower.pos), 350),
+						scale(SCALE),
+						origin('center'),
+						"enemyProjectile",
+					]);
+				}
+			}
+		}
+	}),
+
 	action('cat', cat => catFollow(cat));
 
 	on("death", "cat", cat => {
 		clearInterval(cat.meowLoop);
+		if (cat.throwLoop) {
+			clearInterval(cat.throwLoop);
+		}
 		burp({ volume: .4 });
 		play('explode');
 		cat.destroy();
@@ -230,7 +244,60 @@ scene('game', () => {
 
 	collides("projectile", "wall", (projectile) => {
 		projectile.destroy();
+		add([
+			sprite('puff', {anim: 'puff'}),
+			pos(projectile.pos.x , projectile.pos.y),
+			scale(SCALE),
+			lifespan(.5),
+			origin('center')
+		]);
 	});
+	collides("enemyProjectile", "wall", (projectile) => {
+		projectile.destroy();
+		add([
+			sprite('puff', {anim: 'puff'}),
+			pos(projectile.pos.x , projectile.pos.y),
+			scale(SCALE),
+			lifespan(.5),
+			origin('center')
+		]);
+	});
+
+	collides("enemyProjectile", "player", (projectile) => {
+		projectile.destroy();
+		playerDamage();
+	})
+
+	collides("projectile", "enemyProjectile", (projectile, enemyProjectile) => {
+		projectile.destroy();
+		enemyProjectile.destroy();
+		add([
+			sprite('puff', {anim: 'puff'}),
+			pos((enemyProjectile.pos.x + projectile.pos.x) / 2 , 
+				(enemyProjectile.pos.y + projectile.pos.y) / 2),
+			scale(SCALE),
+			lifespan(.5),
+			origin('center')
+		]);
+	})
+
+	function playerDamage() {
+		if (player.invulnerable) {
+			return;
+		}
+		play('hit');
+		player.hurt(1);
+		player.invulnerable = true;
+		updateHealthUI(player.hp());
+		let flicker = setInterval(() => {
+			player.opacity = player.opacity == 1 ? .4 : 1; 
+		}, 150);
+		wait(1, () => {
+			clearInterval(flicker)
+			player.opacity = 1;
+			player.invulnerable = false;
+		});
+	}
 
 	
 	collides('player', 'elite', (player, elite) => {
@@ -314,15 +381,6 @@ scene('gameOver', () => {
 		pos(0, 0),
 		layer('bg')
 	]);
-	
-	// add([
-	// 	text('GAME OVER', {
-	// 		size: 90,
-	// 		font: "sinko"
-	// 	}),
-	// 	pos(width() / 2, height() / 2),
-	// 	origin('center')
-	// ]);
 	let pressSpace = add([
 		text('Press SPACE to Play Again', {
 			size: 25,
@@ -385,4 +443,4 @@ scene('intro', () => {
 	])
 })
 
-go('mainMenu');
+go('game');

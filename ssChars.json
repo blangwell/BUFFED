@@ -75,6 +75,12 @@
                 "to": 21,
                 "speed": 4,
                 "loop": true
+            },
+            "wizardIdle": {
+                "from": 24,
+                "to": 25,
+                "speed": 3,
+                "loop": true
             }
         }
     }

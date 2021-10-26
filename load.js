@@ -26,8 +26,8 @@ loadSprite('intro5', './sprites/intro5.png');
 loadSprite('intro6', './sprites/intro6.png');
 
 loadSprite('fish', './sprites/fish.png');
-loadSpriteAtlas('./sprites/tmDungeon.png', './tilemap.json');
 loadSpriteAtlas('./sprites/ssFantasy.png', './fantasySpriteAtlas.json');
+loadSpriteAtlas('./sprites/tmDungeon.png', './tilemap.json');
 loadSpriteAtlas('./sprites/ssTilemapV2.png', './tilemapV2.json');
 loadSpriteAtlas('./sprites/ssChars.png', './ssChars.json');
 

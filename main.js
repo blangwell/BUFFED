@@ -48,6 +48,7 @@ scene('game', () => {
 
 	on("death", "player", () => {
 		bgm.pause();
+		bgmPlaying = false;
 		play('lose');
 		currentLevel = 0;
 		let cats = get('cat');
@@ -442,6 +443,7 @@ scene('transition', () => {
 		wait(1.5, () => go('game'));
 	} else {
 		bgm.pause();
+		bgmPlaying = false;
 		wait(1.5, () => go('win'));
 	}
 });

@@ -5,6 +5,8 @@ let currentLevel = 0;
 let bgmPlaying = false;
 let bgm;
 
+export let playerHealth = 3;
+
 scene('game', () => {
 	// debug.inspect = true;
 	// ====== SETUP ======
@@ -36,6 +38,7 @@ scene('game', () => {
 	
 	player.collides('potion', potion => {
 		player.heal(1);
+		playerHealth++;
 		play('heal', { volume: .5 });
 		updateHealthUI(player.hp());
 		potion.destroy();
@@ -335,6 +338,7 @@ scene('game', () => {
 			return;
 		}
 		play('hit');
+		playerHealth--;
 		player.hurt(1);
 		player.invulnerable = true;
 		updateHealthUI(player.hp());
@@ -419,6 +423,9 @@ scene('gameOver', () => {
 });
 
 scene('transition', () => {
+	if (currentLevel === 0) {
+		playerHealth = 3;
+	}
 	if (currentLevel < 8) {
 		add([
 			pos(0, 0),

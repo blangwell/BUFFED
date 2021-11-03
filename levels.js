@@ -1,5 +1,5 @@
 import { k } from './load.js';
-import { SCALE } from './main.js';
+import { SCALE, playerHealth } from './main.js';
 
 const LEVEL_LIST =  [
 	{ // LEVEL 1
@@ -273,9 +273,8 @@ const mapKey = {
 		k.layer('game'),
 		k.scale(SCALE),
 		k.area({ width: 16, height: 24, offset: vec2(0, 5) }),
-		k.health(3),
+		k.health(playerHealth),
 		k.solid(),
-		// k.z(2),
 		{
 			invulnerable: false,
 			cooldownTime: .5,

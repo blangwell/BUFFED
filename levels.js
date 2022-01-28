@@ -405,7 +405,7 @@ const mapKey = {
 		k.origin('center'),
 		k.layer('game'),
 		k.scale(SCALE),
-		k.area({ width: 25, height: 25, offset: { x: 0, y: 10 } }),
+		k.area({ width: 25, height: 25, offset: vec2(0, 10) }),
 		k.solid(),
 		k.health(3),
 		{
@@ -425,7 +425,7 @@ const mapKey = {
 		k.origin('center'),
 		k.layer('game'),
 		k.scale(SCALE),
-		k.area({ width: 25, height: 25,  offset: { x: 0, y: 10 } }),
+		k.area({ width: 25, height: 25,  offset: vec2(0, 10) }),
 		k.solid(),
 		k.health(2),
 		{
@@ -445,7 +445,7 @@ const mapKey = {
 		k.origin('center'),
 		k.layer('game'),
 		k.scale(SCALE),
-		k.area({ width: 25, height: 25,  offset: { x: 0, y: 10 } }),
+		k.area({ width: 25, height: 25,  offset: vec2(0, 10) }),
 		k.solid(),
 		k.health(2),
 		

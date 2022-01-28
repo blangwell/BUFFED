@@ -27,16 +27,16 @@ scene('game', () => {
 	let player = get('player')[0];
 	updateHealthUI(player.hp());
 	
-	action('player', player => camPos(player.pos));
-	player.collides('cat', () => {
+	onUpdate('player', player => camPos(player.pos));
+	player.onCollide('cat', () => {
 		playerDamage();
 	});
 
-	player.collides('barf', () => {
+	player.onCollide('barf', () => {
 		playerDamage();
 	})
 	
-	player.collides('potion', potion => {
+	player.onCollide('potion', potion => {
 		player.heal(1);
 		playerHealth++;
 		play('heal', { volume: .5 });
@@ -142,7 +142,7 @@ scene('game', () => {
 						origin('center'),
 						"enemyProjectile",
 					]);
-					fishbone.action(() => {
+					fishbone.onUpdate(() => {
 						fishbone.angle -= 300 * dt();
 					});
 				}
@@ -150,7 +150,7 @@ scene('game', () => {
 		}
 	}),
 
-	action('cat', cat => catFollow(cat));
+	onUpdate('cat', cat => catFollow(cat));
 
 	on("death", "cat", cat => {
 		clearInterval(cat.meowLoop);
@@ -177,7 +177,7 @@ scene('game', () => {
 				layer('bg'),
 				'staircase'
 			])
-			player.collides('staircase', () => {
+			player.onCollide('staircase', () => {
 				play('footsteps');
 				currentLevel++;
 				go('transition');
@@ -188,61 +188,61 @@ scene('game', () => {
 
 	// ===== INPUT =====
 	// walk / idle 
-	keyPress(['w', 'a', 's', 'd'], () => {
+	onKeyPress(['w', 'a', 's', 'd'], () => {
 		player.play('walk');
 	});
-	keyRelease(['w', 'a', 's', 'd'], () => {
+	onKeyRelease(['w', 'a', 's', 'd'], () => {
 		if (
-			!keyIsDown('w') &&
-			!keyIsDown('a') &&
-			!keyIsDown('s') &&
-			!keyIsDown('d') 
+			!isKeyDown('w') &&
+			!isKeyDown('a') &&
+			!isKeyDown('s') &&
+			!isKeyDown('d') 
 			) {
 				player.play('idle');
 		}
 	});
 
 	// movement
-	keyDown('a', () => {
+	onKeyDown('a', () => {
 		player.move(-150, 0);
 	});
-	keyDown('d', () => {
+	onKeyDown('d', () => {
 		player.move(150, 0);
 	});
-	keyDown('w', () => {
+	onKeyDown('w', () => {
 		player.move(0, -150);
 	});
-	keyDown('s', () => {
+	onKeyDown('s', () => {
 		player.move(0, 150);
 	});
 
 	// flipX
-	keyPress('a', () => {
+	onKeyPress('a', () => {
 		player.flipX(false);
 	});
-	keyPress('d', () => {
+	onKeyPress('d', () => {
 		player.flipX(true);
 	});
 
 	// fullscreen
-	keyPress('f', () => {
+	onKeyPress('f', () => {
 		fullscreen(!isFullscreen());
 	});
 
 	// ====== PROJECTILE LOGIC ======
 	// spawn projectiles
-	keyPress('left', () => {
+	onKeyPress('left', () => {
 		spawnProjectile(LEFT);
 		player.flipX(false);
 	});
-	keyPress('right', () => {
+	onKeyPress('right', () => {
 		spawnProjectile(RIGHT);
 		player.flipX(true);
 	});
-	keyPress('up', () => {
+	onKeyPress('up', () => {
 		spawnProjectile(UP);
 	});
-	keyPress('down', () => {
+	onKeyPress('down', () => {
 		spawnProjectile(DOWN);
 	});
 
@@ -253,10 +253,10 @@ scene('game', () => {
 			wait(player.cooldownTime, () => {
 				player.inCooldown = false;
 				if (
-					!keyIsDown('w') &&
-					!keyIsDown('a') &&
-					!keyIsDown('s') &&
-					!keyIsDown('d') 
+					!isKeyDown('w') &&
+					!isKeyDown('a') &&
+					!isKeyDown('s') &&
+					!isKeyDown('d') 
 				) {
 					player.play('idle');
 				} else {
@@ -275,7 +275,7 @@ scene('game', () => {
 				origin('center'),
 				"projectile"
 			]);
-			projectile.action(() => {
+			projectile.onUpdate(() => {
 				projectile.angle += 300 * dt();
 			});
 		}
@@ -284,8 +284,8 @@ scene('game', () => {
 	
 
 	// ====== PROJECILE COLLISIONS ======
-	collides('cat', 'projectile', (cat, projectile) => {
-		projectile.destroy();
+	onCollide('cat', 'projectile', (cat, projectile) => {
+		destroy(projectile);
 		if (cat.hp() > 1) {
 			play('grow');
 		}
@@ -294,7 +294,7 @@ scene('game', () => {
 		cat.scaleTo(SCALE + cat.timesFed * cat.growModifier);
 	});
 
-	collides("projectile", "wall", (projectile) => {
+	onCollide("projectile", "wall", (projectile) => {
 		projectile.destroy();
 		add([
 			sprite('puff', {anim: 'puff'}),
@@ -304,7 +304,7 @@ scene('game', () => {
 			origin('center')
 		]);
 	});
-	collides("enemyProjectile", "wall", (projectile) => {
+	onCollide("enemyProjectile", "wall", (projectile) => {
 		projectile.destroy();
 		add([
 			sprite('puff', {anim: 'puff'}),
@@ -315,12 +315,12 @@ scene('game', () => {
 		]);
 	});
 
-	collides("enemyProjectile", "player", (projectile) => {
+	onCollide("enemyProjectile", "player", (projectile) => {
 		projectile.destroy();
 		playerDamage();
 	})
 
-	collides("projectile", "enemyProjectile", (projectile, enemyProjectile) => {
+	onCollide("projectile", "enemyProjectile", (projectile, enemyProjectile) => {
 		projectile.destroy();
 		enemyProjectile.destroy();
 		add([
@@ -353,16 +353,16 @@ scene('game', () => {
 	}
 
 	
-	collides('player', 'elite', (player, elite) => {
+	onCollide('player', 'elite', (player, elite) => {
 		elite.play('eliteAttack');
 	});
 	
 	
 	// ====== COLLISION DIST TOGGLE ======
-	action('cat', c => {
+	onUpdate('cat', c => {
 		c.solid = c.pos.dist(player.pos) <= 64 * SCALE;
 	});
-	action('wall', w => {
+	onUpdate('wall', w => {
 		w.solid = w.pos.dist(player.pos) <= 64 * SCALE;
 	});
 
@@ -389,10 +389,10 @@ scene('mainMenu', () => {
 			pressSpace.opacity = 0;
 		});
 	});
-	keyPress('space', () => {
+	onKeyPress('space', () => {
 		go('intro');
 	});
-	keyPress('f', () => {
+	onKeyPress('f', () => {
 		fullscreen(!isFullscreen());
 	})
 });
@@ -417,7 +417,7 @@ scene('gameOver', () => {
 			pressSpace.opacity = 0;
 		});
 	});
-	keyPress(['space'], () => {
+	onKeyPress(['space'], () => {
 		go('transition');
 	});
 });
@@ -525,11 +525,11 @@ scene('intro', () => {
 				});
 			});
 	});
-	keyPress('space', () => {
+	onKeyPress('space', () => {
 		go('transition');
 		introMusic.pause();
 	})
-	keyPress('f', () => {
+	onKeyPress('f', () => {
 		fullscreen(!isFullscreen());
 	});
 });
@@ -543,7 +543,7 @@ scene('win', () => {
 		pos(0, 0),
 		layer('bg')
 	])
-	keyPress('space', () => {
+	onKeyPress('space', () => {
 		go('mainMenu');
 	});
 });
